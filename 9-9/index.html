@@ -142,20 +142,15 @@
     // 테이블 생성
     (function buildTable() {
       const t = document.getElementById('table');
-      // 헤더 행
-      let headRow = '<tr><th>×</th>';
-      for (let c = 1; c <= 9; c++) headRow += `<th>${c}</th>`;
-      headRow += '</tr>';
-      t.innerHTML = headRow;
-      // 데이터 행
+      let html = '<tr><th>×</th>';
+      for (let c = 1; c <= 9; c++) html += `<th>${c}</th>`;
+      html += '</tr>';
       for (let r = 1; r <= 9; r++) {
-        let row = `<tr><th>${r}</th>`;
-        for (let c = 1; c <= 9; c++) {
-          row += `<td>${r * c}</td>`;
-        }
-        row += '</tr>';
-        t.innerHTML += row;
+        html += `<tr><th>${r}</th>`;
+        for (let c = 1; c <= 9; c++) html += `<td>${r * c}</td>`;
+        html += '</tr>';
       }
+      t.innerHTML = html;
     })();
 
     // 테마 스위치
