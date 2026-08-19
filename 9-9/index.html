@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>9단 곱셈표</title>
+  <style>
+    /* ── 공통 ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.4s, color 0.4s;
+    }
+    h1 { margin-bottom: 1rem; font-size: 1.8rem; letter-spacing: 2px; }
+
+    /* ── 스위치 버튼 (우상단) ── */
+    #theme-btn {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1.2rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+      z-index: 999;
+    }
+
+    /* ══════════════════════
+       디자인 1 – Classic Light
+    ══════════════════════ */
+    body.theme-1 {
+      background: #f0f4ff;
+      color: #1a1a2e;
+    }
+    body.theme-1 #theme-btn {
+      background: #4f6ef7;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(79,110,247,0.4);
+    }
+    body.theme-1 table { border-collapse: collapse; }
+    body.theme-1 th, body.theme-1 td {
+      width: 56px; height: 56px;
+      text-align: center;
+      border: 1px solid #c5cff5;
+      font-size: 0.85rem;
+    }
+    body.theme-1 th {
+      background: #4f6ef7;
+      color: #fff;
+      font-size: 1rem;
+    }
+    body.theme-1 td { background: #fff; }
+    body.theme-1 tr:hover td { background: #e0e8ff; }
+
+    /* ══════════════════════
+       디자인 2 – Dark Neon
+    ══════════════════════ */
+    body.theme-2 {
+      background: #0d0d1a;
+      color: #e0e0ff;
+    }
+    body.theme-2 #theme-btn {
+      background: #0ff;
+      color: #0d0d1a;
+      box-shadow: 0 0 14px #0ff;
+    }
+    body.theme-2 table { border-collapse: collapse; }
+    body.theme-2 th, body.theme-2 td {
+      width: 56px; height: 56px;
+      text-align: center;
+      border: 1px solid #1a1a40;
+      font-size: 0.85rem;
+    }
+    body.theme-2 th {
+      background: #0d0d30;
+      color: #0ff;
+      font-size: 1rem;
+      text-shadow: 0 0 8px #0ff;
+    }
+    body.theme-2 td { background: #11112a; color: #e0e0ff; }
+    body.theme-2 tr:hover td {
+      background: #1a1a50;
+      color: #0ff;
+      text-shadow: 0 0 6px #0ff;
+    }
+
+    /* ══════════════════════
+       디자인 3 – Pastel Rainbow
+    ══════════════════════ */
+    body.theme-3 {
+      background: linear-gradient(135deg, #ffd6e7, #d6f5ff, #d6ffd6);
+      color: #333;
+    }
+    body.theme-3 #theme-btn {
+      background: linear-gradient(90deg, #ff6fa8, #6fa8ff);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(255,111,168,0.5);
+    }
+    body.theme-3 table { border-collapse: separate; border-spacing: 4px; }
+    body.theme-3 th, body.theme-3 td {
+      width: 56px; height: 56px;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    body.theme-3 th {
+      background: rgba(255,255,255,0.7);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    body.theme-3 td { background: rgba(255,255,255,0.55); }
+    body.theme-3 tr:hover td { background: rgba(255,255,255,0.85); }
+
+    /* row-color for rainbow */
+    body.theme-3 tr:nth-child(2) td { background: rgba(255,182,193,0.5); }
+    body.theme-3 tr:nth-child(3) td { background: rgba(255,218,185,0.5); }
+    body.theme-3 tr:nth-child(4) td { background: rgba(255,255,153,0.5); }
+    body.theme-3 tr:nth-child(5) td { background: rgba(178,255,178,0.5); }
+    body.theme-3 tr:nth-child(6) td { background: rgba(153,255,255,0.5); }
+    body.theme-3 tr:nth-child(7) td { background: rgba(153,204,255,0.5); }
+    body.theme-3 tr:nth-child(8) td { background: rgba(204,153,255,0.5); }
+    body.theme-3 tr:nth-child(9) td { background: rgba(255,153,204,0.5); }
+    body.theme-3 tr:nth-child(10) td { background: rgba(255,153,153,0.5); }
+  </style>
+</head>
+<body class="theme-1">
+
+  <button id="theme-btn" onclick="switchTheme()">🎨 디자인 변경</button>
+  <h1>9단 곱셈표 (9×9)</h1>
+
+  <table id="table"></table>
+
+  <script>
+    // 테이블 생성
+    (function buildTable() {
+      const t = document.getElementById('table');
+      // 헤더 행
+      let headRow = '<tr><th>×</th>';
+      for (let c = 1; c <= 9; c++) headRow += `<th>${c}</th>`;
+      headRow += '</tr>';
+      t.innerHTML = headRow;
+      // 데이터 행
+      for (let r = 1; r <= 9; r++) {
+        let row = `<tr><th>${r}</th>`;
+        for (let c = 1; c <= 9; c++) {
+          row += `<td>${r * c}</td>`;
+        }
+        row += '</tr>';
+        t.innerHTML += row;
+      }
+    })();
+
+    // 테마 스위치
+    let current = 1;
+    const themes = ['theme-1', 'theme-2', 'theme-3'];
+    function switchTheme() {
+      document.body.classList.remove(themes[current - 1]);
+      current = current % 3 + 1;
+      document.body.classList.add(themes[current - 1]);
+    }
+  </script>
+</body>
+</html>
