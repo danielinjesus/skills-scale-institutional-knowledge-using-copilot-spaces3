@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>구구단 9×9</title>
+  <style>
+    /* ===== 공통 ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    /* ── 디자인 스위치 버튼 (우상단) ── */
+    #switcher {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 999;
+      display: flex;
+      gap: 8px;
+    }
+
+    .sw-btn {
+      padding: 7px 14px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .sw-btn:hover { transform: scale(1.08); }
+    .sw-btn.active { outline: 3px solid #fff; outline-offset: 2px; }
+
+    h1 {
+      text-align: center;
+      padding: 28px 0 18px;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+    }
+
+    /* ===== 디자인 1 : Classic ===== */
+    body.theme-classic {
+      background: #1a1a2e;
+      color: #eaeaea;
+    }
+    body.theme-classic #switcher .sw-btn { background: #16213e; color: #e94560; }
+    body.theme-classic #switcher .sw-btn.active { background: #e94560; color: #fff; }
+
+    body.theme-classic .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 6px;
+      padding: 12px 20px 40px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    body.theme-classic .cell {
+      background: #16213e;
+      border: 1px solid #e94560;
+      border-radius: 6px;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: clamp(11px, 1.5vw, 15px);
+      line-height: 1.6;
+      transition: background 0.2s, transform 0.2s;
+    }
+    body.theme-classic .cell:hover {
+      background: #e94560;
+      color: #fff;
+      transform: scale(1.08);
+    }
+    body.theme-classic .cell strong { font-size: 1.1em; color: #e94560; display: block; }
+    body.theme-classic .cell:hover strong { color: #fff; }
+
+    /* ===== 디자인 2 : Pastel ===== */
+    body.theme-pastel {
+      background: #fdf6ec;
+      color: #444;
+    }
+    body.theme-pastel #switcher .sw-btn { background: #ffe0b2; color: #bf5600; }
+    body.theme-pastel #switcher .sw-btn.active { background: #ff9800; color: #fff; }
+
+    body.theme-pastel .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 8px;
+      padding: 12px 20px 40px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* rainbow hue per column */
+    body.theme-pastel .cell { border-radius: 12px; padding: 10px 6px; text-align: center; font-size: clamp(11px, 1.5vw, 14px); line-height: 1.7; transition: transform 0.2s, filter 0.2s; }
+    body.theme-pastel .cell:hover { transform: translateY(-4px); filter: brightness(0.9); }
+    body.theme-pastel .cell:nth-child(9n+1) { background: #ffd6d6; }
+    body.theme-pastel .cell:nth-child(9n+2) { background: #ffe4c4; }
+    body.theme-pastel .cell:nth-child(9n+3) { background: #fffacd; }
+    body.theme-pastel .cell:nth-child(9n+4) { background: #d4f1c4; }
+    body.theme-pastel .cell:nth-child(9n+5) { background: #c4e8f8; }
+    body.theme-pastel .cell:nth-child(9n+6) { background: #d5c4f8; }
+    body.theme-pastel .cell:nth-child(9n+7) { background: #f8c4e8; }
+    body.theme-pastel .cell:nth-child(9n+8) { background: #c4f8ee; }
+    body.theme-pastel .cell:nth-child(9n+0) { background: #f8e4c4; }
+    body.theme-pastel .cell strong { display: block; font-size: 1.15em; color: #555; }
+
+    /* ===== 디자인 3 : Neon ===== */
+    body.theme-neon {
+      background: #0d0d0d;
+      color: #fff;
+    }
+    body.theme-neon #switcher .sw-btn { background: #111; color: #0ff; border: 1px solid #0ff; }
+    body.theme-neon #switcher .sw-btn.active { background: #0ff; color: #000; }
+
+    body.theme-neon .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 6px;
+      padding: 12px 20px 40px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    body.theme-neon .cell {
+      border: 1px solid #0ff4;
+      border-radius: 4px;
+      padding: 10px 4px;
+      text-align: center;
+      font-size: clamp(10px, 1.3vw, 13px);
+      line-height: 1.7;
+      background: transparent;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    body.theme-neon .cell:hover {
+      border-color: #0ff;
+      box-shadow: 0 0 12px #0ff8;
+    }
+    body.theme-neon .cell strong { display: block; color: #0ff; font-size: 1.1em; text-shadow: 0 0 6px #0ff; }
+
+    /* responsive: smaller screens → smaller font, tighter gap */
+    @media (max-width: 600px) {
+      .grid { gap: 4px !important; padding: 8px 8px 32px !important; }
+      .cell { padding: 6px 3px !important; font-size: 10px !important; }
+    }
+  </style>
+</head>
+<body class="theme-classic">
+
+  <!-- 디자인 전환 버튼 (우상단) -->
+  <div id="switcher">
+    <button class="sw-btn active" data-theme="theme-classic">Classic</button>
+    <button class="sw-btn"        data-theme="theme-pastel">Pastel</button>
+    <button class="sw-btn"        data-theme="theme-neon">Neon</button>
+  </div>
+
+  <h1>구구단 (1단 ~ 9단)</h1>
+
+  <!-- 구구단 그리드 -->
+  <div class="grid" id="grid"></div>
+
+  <script>
+    // ── 구구단 셀 생성 ──
+    const grid = document.getElementById('grid');
+    for (let i = 1; i <= 9; i++) {
+      for (let j = 1; j <= 9; j++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.innerHTML = `<strong>${i}단</strong>${i} × ${j} = ${i * j}`;
+        grid.appendChild(cell);
+      }
+    }
+
+    // ── 테마 전환 ──
+    const themes = ['theme-classic', 'theme-pastel', 'theme-neon'];
+    const btns   = document.querySelectorAll('.sw-btn');
+
+    // 저장된 테마 복원
+    const saved = localStorage.getItem('gg-theme');
+    if (saved && themes.includes(saved)) applyTheme(saved);
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+    });
+
+    function applyTheme(theme) {
+      document.body.classList.remove(...themes);
+      document.body.classList.add(theme);
+      btns.forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
+      localStorage.setItem('gg-theme', theme);
+    }
+  </script>
+</body>
+</html>
